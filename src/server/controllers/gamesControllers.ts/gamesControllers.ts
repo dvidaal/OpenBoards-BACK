@@ -36,10 +36,10 @@ export const getGamesById = async (
 ) => {
   const { id: gameId } = req.params;
   try {
-    const game = await Game.findById(gameId).exec();
+    const singleGame = await Game.findById(gameId).exec();
 
-    if (game) {
-      res.status(200).json({ game });
+    if (singleGame) {
+      res.status(200).json({ singleGame });
     }
   } catch (error) {
     const customError = new CustomError(

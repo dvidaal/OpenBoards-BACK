@@ -88,7 +88,7 @@ describe("Given a getGamesById function", () => {
       await getGamesById(req as CustomRequest, res as Response, next);
 
       expect(res.status).toHaveBeenCalledWith(expectedStatusCode);
-      expect(res.json).toHaveBeenCalledWith({ game: mockGame });
+      expect(res.json).toHaveBeenCalledWith({ singleGame: mockGame });
     });
   });
 
