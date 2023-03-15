@@ -2,8 +2,9 @@ import e, { type Request, type Response } from "express";
 import CustomError from "../../../CustomError/CustomError";
 import { Game } from "../../../database/models/Games/Games";
 import { type GameStructure } from "../../../types/games/types";
+import { type CustomRequest } from "../../../types/users/types";
 import statusCodes from "../../../utils/statusCodes";
-import { getGames } from "./gamesControllers";
+import { getGames, getGamesById } from "./gamesControllers";
 
 beforeEach(() => jest.resetAllMocks());
 
@@ -58,6 +59,65 @@ describe("Given a getGames controller", () => {
       await getGames(req as Request, res as Response, next);
 
       expect(next).toHaveBeenCalledWith(expectedError);
+    });
+  });
+});
+
+describe("Given a getGamesById function", () => {
+  describe("When it's invoked with right id", () => {
+    test("Then it should call res status method with a 200 and json with a mocked game", async () => {
+      const gameId = "test-game-id";
+
+      Game.findById = jest.fn().mockImplementationOnce(() => ({
+        exec: jest.fn().mockResolvedValue(mockGame),
+      }));
+
+      const res: Partial<Response> = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      const req: Partial<CustomRequest> = {
+        params: {
+          id: gameId,
+        },
+      };
+
+      const next = jest.fn();
+      const expectedStatusCode = statusCodes.success.okCode;
+      await getGamesById(req as CustomRequest, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(expectedStatusCode);
+      expect(res.json).toHaveBeenCalledWith({ game: mockGame });
+    });
+  });
+
+  describe("When it's invoked with wrong id", () => {
+    test("Then it should invoke the next method with status code 400 and the message 'Bad request'", async () => {
+      Game.findById = jest.fn().mockImplementationOnce(() => ({
+        exec: jest.fn().mockRejectedValue(""),
+      }));
+
+      const res: Partial<Response> = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      const req: Partial<CustomRequest> = {
+        params: {
+          id: "wrong id",
+        },
+      };
+
+      const next = jest.fn();
+      const expectedCustomError = new CustomError(
+        "Bad request",
+        400,
+        "Impossible to find the detail of the game"
+      );
+      await getGamesById(req as CustomRequest, res as Response, next);
+
+      expect(next).toHaveBeenCalledWith(expectedCustomError);
     });
   });
 });

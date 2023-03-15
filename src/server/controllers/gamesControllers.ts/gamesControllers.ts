@@ -40,7 +40,6 @@ export const getGamesById = async (
 
     if (game) {
       res.status(200).json({ game });
-      return;
     }
   } catch (error) {
     const customError = new CustomError(
