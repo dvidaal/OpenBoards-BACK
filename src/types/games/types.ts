@@ -5,6 +5,8 @@ export interface GameStructure {
   hour: string;
   bio: string;
   plazasLibres: number;
+  id: string;
+  createdBy: string;
 }
 
 export type GamesStructure = GameStructure[];

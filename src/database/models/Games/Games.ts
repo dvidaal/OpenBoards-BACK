@@ -25,6 +25,12 @@ const gamesSchema = new Schema({
     type: Number,
     required: true,
   },
+
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: "User",
+  },
 });
 
 export const Game = model("Game", gamesSchema, "games");

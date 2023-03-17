@@ -1,20 +1,22 @@
-import e, { type Request, type Response } from "express";
+import e, { type NextFunction, type Request, type Response } from "express";
 import CustomError from "../../../CustomError/CustomError";
 import { Game } from "../../../database/models/Games/Games";
 import { type GameStructure } from "../../../types/games/types";
 import { type CustomRequest } from "../../../types/users/types";
 import statusCodes from "../../../utils/statusCodes";
-import { getGames, getGamesById } from "./gamesControllers";
+import { deleteGamesById, getGames, getGamesById } from "./gamesControllers";
 
 beforeEach(() => jest.resetAllMocks());
 
 const mockGame: GameStructure = {
   game: "Némesis",
-  avatar: "asdfghjkl",
+  avatar: "fake",
   date: new Date(),
-  hour: "sfasfa",
-  bio: "sdfasdfas",
+  hour: "fake",
+  bio: "fake",
   plazasLibres: 3,
+  id: "1",
+  createdBy: "fake",
 };
 
 describe("Given a getGames controller", () => {
@@ -118,6 +120,59 @@ describe("Given a getGamesById function", () => {
       await getGamesById(req as CustomRequest, res as Response, next);
 
       expect(next).toHaveBeenCalledWith(expectedCustomError);
+    });
+  });
+});
+
+describe("Given a deleteGamesById function", () => {
+  describe("When it receives a request to delete a game", () => {
+    test("Then it should delete a game and response with a 200 status code", async () => {
+      const req: Partial<CustomRequest> = { params: { id: `${mockGame.id}` } };
+
+      const res: Partial<Response> = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      const next: NextFunction = jest.fn();
+
+      Game.findByIdAndDelete = jest.fn().mockImplementationOnce(() => ({
+        exec: jest.fn().mockResolvedValue(mockGame),
+      }));
+
+      const expectedStatusCode = statusCodes.success.okCode;
+      await deleteGamesById(req as CustomRequest, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(expectedStatusCode);
+      expect(res.json).toHaveBeenCalledWith({ message: "Partida eliminada" });
+    });
+  });
+
+  describe("When it receives a bad request", () => {
+    test("Then it should return a status code 400", async () => {
+      const req: Partial<CustomRequest> = {
+        params: { id: `${mockGame.id}` },
+      };
+
+      const res: Partial<Response> = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      const next: NextFunction = jest.fn();
+
+      Game.findByIdAndDelete = jest.fn().mockReturnValue(new Error());
+
+      const expectedBadRequestStatus = statusCodes.clientError.badRequest;
+      await deleteGamesById(req as CustomRequest, res as Response, next);
+
+      const customError = new CustomError(
+        "Bad request",
+        expectedBadRequestStatus,
+        "Impossible to delete the game"
+      );
+
+      expect(next).toHaveBeenCalled();
     });
   });
 });

@@ -50,3 +50,23 @@ export const getGamesById = async (
     next(customError);
   }
 };
+
+export const deleteGamesById = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.params;
+
+  try {
+    await Game.findByIdAndDelete({ _id: id, createdBy: req.createdBy }).exec();
+    res.status(okCode).json({ message: "Partida eliminada" });
+  } catch (error) {
+    const customError = new CustomError(
+      "Bad request",
+      badRequest,
+      "Impossible to delete the game"
+    );
+    next(customError);
+  }
+};
