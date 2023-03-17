@@ -31,7 +31,7 @@ describe("Given a GET '/games' endpoint", () => {
   describe("When it receives a request", () => {
     test("Then it should respond with status 200", async () => {
       const expectedStatus = 200;
-      const eventsUrl = "/openboards/games";
+      const eventsUrl = "/openboards/";
 
       await request(app).get(eventsUrl).expect(expectedStatus);
     });

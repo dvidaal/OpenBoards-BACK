@@ -31,9 +31,9 @@ const mockUser: UserData = {
   email: "didi@gmail.com",
 };
 
-const loginUrl = "/openboards/login";
+const loginUrl = "/users/login";
 
-describe("Given a POST '/openboards/login' endpoint", () => {
+describe("Given a POST '/users/login' endpoint", () => {
   describe("When it receives a request to login with the usename 'didi' and password '12345678'", () => {
     test("Then it should return a status code 200", async () => {
       const expectedStatus = 200;

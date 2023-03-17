@@ -21,4 +21,5 @@ const options: cors.CorsOptions = {
 app.use(cors(options));
 
 app.use(express.json());
-app.use("/openboards", usersRouters, gamesRouteres);
+app.use("/users", usersRouters);
+app.use("/openboards", gamesRouteres);
