@@ -1,4 +1,4 @@
-import e, { type NextFunction, type Request, type Response } from "express";
+import { type NextFunction, type Request, type Response } from "express";
 import CustomError from "../../../CustomError/CustomError";
 import { Game } from "../../../database/models/Games/Games";
 import { type GameStructure } from "../../../types/games/types";
