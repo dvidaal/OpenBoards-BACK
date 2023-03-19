@@ -7,10 +7,6 @@ import {
 import statusCodes from "../../../utils/statusCodes.js";
 import { type CustomRequest } from "../../../types/users/types";
 import mongoose from "mongoose";
-import {
-  type GamesStructure,
-  type GameStructure,
-} from "../../../types/games/types.js";
 
 const {
   success: { okCode },
