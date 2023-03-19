@@ -25,4 +25,5 @@ export interface StatusCodesStructure {
 export interface CustomRequest extends Request {
   gameId: string;
   createdBy: string;
+  userId: string;
 }

@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, type InferSchemaType } from "mongoose";
 
 const gamesSchema = new Schema({
   game: {
@@ -34,3 +34,5 @@ const gamesSchema = new Schema({
 });
 
 export const Game = model("Game", gamesSchema, "games");
+
+export type GameSchemaStructure = InferSchemaType<typeof gamesSchema>;
