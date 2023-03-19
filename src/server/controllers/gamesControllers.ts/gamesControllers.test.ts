@@ -1,10 +1,18 @@
 import { type NextFunction, type Request, type Response } from "express";
 import CustomError from "../../../CustomError/CustomError";
-import { Game } from "../../../database/models/Games/Games";
+import {
+  Game,
+  type GameSchemaStructure,
+} from "../../../database/models/Games/Games";
 import { type GameStructure } from "../../../types/games/types";
 import { type CustomRequest } from "../../../types/users/types";
 import statusCodes from "../../../utils/statusCodes";
-import { deleteGamesById, getGames, getGamesById } from "./gamesControllers";
+import {
+  createGame,
+  deleteGamesById,
+  getGames,
+  getGamesById,
+} from "./gamesControllers";
 
 beforeEach(() => jest.resetAllMocks());
 
@@ -172,7 +180,48 @@ describe("Given a deleteGamesById function", () => {
         "Impossible to delete the game"
       );
 
-      expect(next).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(customError);
+    });
+  });
+});
+
+describe("Given a createGame controller", () => {
+  describe("When it receives a response", () => {
+    test("Then it should respond with status 201", async () => {
+      const res: Partial<Response> = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockResolvedValue(mockGame),
+      };
+      const req: Partial<CustomRequest> = {};
+      const next = jest.fn();
+      req.body = mockGame;
+      const expectedStatusCode = 201;
+
+      Game.create = jest.fn().mockReturnValue(mockGame);
+
+      await createGame(req as CustomRequest, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(expectedStatusCode);
+    });
+  });
+
+  describe("When it receives a internal server error", () => {
+    test("Then it should throw an error", async () => {
+      const req: Partial<CustomRequest> = {};
+      const res: Partial<Response> = {};
+      const next = jest.fn();
+
+      req.body = {};
+
+      const expectedError = new CustomError(
+        "No se puede crear la partida",
+        500,
+        "Imposible crear la partida"
+      );
+
+      await createGame(req as CustomRequest, res as Response, next);
+
+      expect(next).toHaveBeenCalledWith(expectedError);
     });
   });
 });

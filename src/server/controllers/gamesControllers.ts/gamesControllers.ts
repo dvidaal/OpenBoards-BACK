@@ -1,12 +1,21 @@
 import { type Response, type NextFunction, type Request } from "express";
 import CustomError from "../../../CustomError/CustomError.js";
-import { Game } from "../../../database/models/Games/Games.js";
+import {
+  Game,
+  type GameSchemaStructure,
+} from "../../../database/models/Games/Games.js";
 import statusCodes from "../../../utils/statusCodes.js";
 import { type CustomRequest } from "../../../types/users/types";
+import mongoose from "mongoose";
+import {
+  type GamesStructure,
+  type GameStructure,
+} from "../../../types/games/types.js";
 
 const {
   success: { okCode },
   clientError: { badRequest },
+  serverError: { internalServer },
 } = statusCodes;
 
 export const getGames = async (
@@ -66,6 +75,37 @@ export const deleteGamesById = async (
       "Bad request",
       badRequest,
       "Impossible to delete the game"
+    );
+    next(customError);
+  }
+};
+
+export const createGame = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const { avatar, bio, createdBy, data, game, hour, plazasLibres } =
+    req.body as GameSchemaStructure;
+  const { userId } = req;
+
+  try {
+    const newGame: GameSchemaStructure = {
+      avatar,
+      bio,
+      createdBy: new mongoose.Types.ObjectId(userId),
+      data,
+      game,
+      hour,
+      plazasLibres,
+    };
+
+    res.status(201).json({ game: newGame });
+  } catch (error) {
+    const customError = new CustomError(
+      "No se puede crear la partida",
+      internalServer,
+      "Imposible crear la partida"
     );
     next(customError);
   }

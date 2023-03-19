@@ -1,7 +1,7 @@
 export interface GameStructure {
   game: string;
   avatar: string;
-  date: Date;
+  date: Date | string;
   hour: string;
   bio: string;
   plazasLibres: number;
