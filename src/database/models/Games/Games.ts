@@ -10,11 +10,11 @@ const gamesSchema = new Schema({
     required: true,
   },
   data: {
-    type: Date,
+    type: String,
     required: true,
   },
   hour: {
-    type: Date,
+    type: Number,
     required: true,
   },
   bio: {
