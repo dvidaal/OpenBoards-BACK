@@ -6,7 +6,6 @@ import {
 } from "../../../database/models/Games/Games.js";
 import statusCodes from "../../../utils/statusCodes.js";
 import { type CustomRequest } from "../../../types/users/types";
-import mongoose from "mongoose";
 
 const {
   success: { okCode },
@@ -81,22 +80,13 @@ export const createGame = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { avatar, bio, data, game, hour, plazasLibres } =
-    req.body as GameSchemaStructure;
+  const game = req.body as GameSchemaStructure;
   const { userId } = req;
 
   try {
-    const newGame: GameSchemaStructure = {
-      avatar,
-      bio,
-      createdBy: new mongoose.Types.ObjectId(userId),
-      data,
-      game,
-      hour,
-      plazasLibres,
-    };
+    const newGame = await Game.create({ ...game, createdBy: userId });
 
-    res.status(201).json({ game: newGame });
+    res.status(201).json({ ...newGame.toJSON() });
   } catch (error) {
     const customError = new CustomError(
       "No se puede crear la partida",
