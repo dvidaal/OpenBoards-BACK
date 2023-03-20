@@ -81,7 +81,7 @@ export const createGame = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { avatar, bio, createdBy, data, game, hour, plazasLibres } =
+  const { avatar, bio, data, game, hour, plazasLibres } =
     req.body as GameSchemaStructure;
   const { userId } = req;
 
