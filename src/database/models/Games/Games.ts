@@ -15,7 +15,6 @@ const gamesSchema = new Schema({
   },
   hour: {
     type: Number,
-    required: true,
   },
   bio: {
     type: String,
