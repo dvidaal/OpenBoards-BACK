@@ -81,10 +81,9 @@ export const createGame = async (
   next: NextFunction
 ) => {
   const game = req.body as GameSchemaStructure;
-  const { userId } = req;
 
   try {
-    const newGame = await Game.create({ ...game, createdBy: userId });
+    const newGame = await Game.create({ ...game });
 
     res.status(201).json({ ...newGame.toJSON() });
   } catch (error) {
