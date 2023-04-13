@@ -1,12 +1,15 @@
 import { type Request, type Response } from "express";
+import request from "supertest";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../../../database/models/Users/User";
 import { loginUserErrors } from "../../../utils/error";
 import statusCodes from "../../../utils/statusCodes";
-import loginUser from "./userControllers";
-import { type UserCredentials } from "./types";
+import { loginUser, registerUser } from "./userControllers";
+import { type UserRegisterCredentials, type UserCredentials } from "./types";
+import { app } from "../../app";
+import CustomError from "../../../CustomError/CustomError";
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -132,6 +135,67 @@ describe("Given a loginUser controller", () => {
       );
 
       expect(next).toHaveBeenCalledWith(expectedErrorDatabase);
+    });
+  });
+});
+
+describe("Given a registerUser controller", () => {
+  const newMockUser: UserRegisterCredentials = {
+    email: "test@test.com",
+    username: "test",
+    password: "12345678",
+  };
+  describe("When it receives a request to register a new user", () => {
+    test("Then it should response with a status code 201", async () => {
+      const expectedStatusCode = 201;
+      const mockHashedPassword = "asdf1234asdf1234";
+
+      req.body = newMockUser;
+
+      bcrypt.hash = jest.fn().mockResolvedValue(mockHashedPassword);
+      User.create = jest.fn().mockResolvedValue(mockUser);
+
+      await registerUser(
+        req as Request<
+          Record<string, unknown>,
+          Record<string, unknown>,
+          UserRegisterCredentials
+        >,
+        res as Response,
+        next
+      );
+
+      expect(res.status).toHaveBeenCalledWith(expectedStatusCode);
+    });
+  });
+
+  describe("When databse throws an error", () => {
+    test("Then it should response with a message 'The user couldn't be created'", async () => {
+      const wrongMockUser: UserRegisterCredentials = {
+        ...newMockUser,
+        email: "",
+      };
+
+      req.body = wrongMockUser;
+
+      const mockCustomError = new CustomError(
+        "The user couldn't be created.",
+        409,
+        "There was a problem creating the user."
+      );
+
+      User.create = jest.fn().mockRejectedValue(mockCustomError);
+      await registerUser(
+        req as Request<
+          Record<string, unknown>,
+          Record<string, unknown>,
+          UserRegisterCredentials
+        >,
+        res as Response,
+        next
+      );
+
+      expect(next).toHaveBeenCalledWith(mockCustomError);
     });
   });
 });

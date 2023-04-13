@@ -1,18 +1,21 @@
 import { type NextFunction, type Request, type Response } from "express";
-import bcrypt from "bcryptjs";
+import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 import "../../../loadEnvironment.js";
 import User from "../../../database/models/Users/User.js";
 import { loginUserErrors } from "../../../utils/error.js";
 import statusCodes from "../../../utils/statusCodes.js";
-import { type UserCredentials } from "./types.js";
+import { type UserRegisterCredentials, type UserCredentials } from "./types.js";
 import { type CustomJwtPayload } from "../../../types/users/types.js";
+import CustomError from "../../../CustomError/CustomError.js";
 
 const {
   success: { okCode },
 } = statusCodes;
 
-const loginUser = async (
+const hashingPasswordLength = 8;
+
+export const loginUser = async (
   req: Request<
     Record<string, unknown>,
     Record<string, unknown>,
@@ -28,7 +31,7 @@ const loginUser = async (
       throw loginUserErrors.userNotFound;
     }
 
-    if (!(await bcrypt.compare(password, user.password))) {
+    if (!(await bcryptjs.compare(password, user.password))) {
       throw loginUserErrors.wrongPassword;
     }
 
@@ -47,4 +50,30 @@ const loginUser = async (
   }
 };
 
-export default loginUser;
+export const registerUser = async (
+  req: Request<
+    Record<string, unknown>,
+    Record<string, unknown>,
+    UserRegisterCredentials
+  >,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email, username, password } = req.body;
+
+  try {
+    const hashedPassword = await bcryptjs.hash(password, hashingPasswordLength);
+
+    await User.create({ email, username, password: hashedPassword });
+
+    res.status(201).json({ message: "The user has been created" });
+  } catch (error) {
+    const customError = new CustomError(
+      "The user couldn't be created.",
+      409,
+      "There was a problem creating the user."
+    );
+
+    next(customError);
+  }
+};
